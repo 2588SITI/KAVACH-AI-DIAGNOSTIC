@@ -1,0 +1,5 @@
+{
+  "name": "Kavach AI Diagnostic Dashboard",
+  "description": "Advanced AI-powered diagnostic dashboard for Kavach (TCAS) system analysis, featuring real-time health monitoring, fault detection, and technical report generation.",
+  "requestFramePermissions": []
+}
