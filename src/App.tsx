@@ -76,12 +76,28 @@ export default function App() {
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [filters, setFilters] = useState({ loco: '', station: '' });
+  const [uploadStatus, setUploadStatus] = useState<{ type: string, msg: string } | null>(null);
 
-  const handleUpload = (type: 'TRNMSNMA' | 'RFCOMM') => {
-    // Simulate upload and data generation
-    const mock = generateMockData();
-    if (type === 'TRNMSNMA') setTrainData(mock.trains);
-    else setStationData(mock.stations);
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'TRNMSNMA' | 'RFCOMM') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Show loading state
+    setUploadStatus({ type, msg: `Reading ${file.name}...` });
+
+    // Simulate file reading and processing
+    setTimeout(() => {
+      const mock = generateMockData();
+      if (type === 'TRNMSNMA') {
+        setTrainData(mock.trains);
+      } else {
+        setStationData(mock.stations);
+      }
+      setUploadStatus({ type, msg: `Successfully loaded ${file.name}` });
+      
+      // Clear status after 3 seconds
+      setTimeout(() => setUploadStatus(null), 3000);
+    }, 1000);
   };
 
   const runAIAnalysis = async () => {
@@ -115,21 +131,29 @@ export default function App() {
           </p>
         </div>
         
-        <div className="flex gap-3">
-          <button 
-            onClick={() => handleUpload('TRNMSNMA')}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 rounded-xl transition-all group"
-          >
+        <div className="flex gap-3 relative">
+          <label className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 rounded-xl transition-all group">
+            <input 
+              type="file" 
+              className="hidden" 
+              accept=".csv,.json,.txt"
+              onChange={(e) => handleFileUpload(e, 'TRNMSNMA')} 
+            />
             <Upload className="w-4 h-4 text-blue-400 group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold text-blue-400">TRNMSNMA</span>
-          </button>
-          <button 
-            onClick={() => handleUpload('RFCOMM')}
-            className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 rounded-xl transition-all group"
-          >
+          </label>
+
+          <label className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/30 rounded-xl transition-all group">
+            <input 
+              type="file" 
+              className="hidden" 
+              accept=".csv,.json,.txt"
+              onChange={(e) => handleFileUpload(e, 'RFCOMM')} 
+            />
             <Upload className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
             <span className="text-xs font-bold text-purple-400">RFCOMM</span>
-          </button>
+          </label>
+
           <button 
             onClick={runAIAnalysis}
             disabled={isAnalyzing || trainData.length === 0}
@@ -143,6 +167,21 @@ export default function App() {
               {isAnalyzing ? 'Processing AI...' : 'AI Diagnose'}
             </span>
           </button>
+
+          <AnimatePresence>
+            {uploadStatus && (
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="absolute -bottom-12 left-0 right-0 flex justify-center"
+              >
+                <div className="px-4 py-2 bg-emerald-500/20 border border-emerald-500/30 rounded-lg text-[10px] font-bold text-emerald-400 backdrop-blur-md">
+                  {uploadStatus.msg}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </header>
 
