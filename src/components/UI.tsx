@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export const GlassCard = ({ children, className, glow }: { children: React.ReactNode, className?: string, glow?: 'blue' | 'purple' | 'red' }) => (
+export const GlassCard: React.FC<{ children: React.ReactNode, className?: string, glow?: 'blue' | 'purple' | 'red' }> = ({ children, className, glow }) => (
   <div className={cn(
     "glass rounded-2xl p-6 transition-all duration-300",
     glow === 'blue' && "glow-blue",
@@ -18,7 +18,7 @@ export const GlassCard = ({ children, className, glow }: { children: React.React
   </div>
 );
 
-export const Badge = ({ children, variant = 'default' }: { children: React.ReactNode, variant?: 'default' | 'warning' | 'error' | 'success' }) => {
+export const Badge: React.FC<{ children: React.ReactNode, variant?: 'default' | 'warning' | 'error' | 'success' }> = ({ children, variant = 'default' }) => {
   const variants = {
     default: "bg-blue-500/20 text-blue-400 border-blue-500/30",
     warning: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",

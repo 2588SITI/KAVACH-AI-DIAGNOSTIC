@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import { TrainEvent, StationEvent, AnalysisResult } from "./types";
+import { TrainEvent, StationEvent, AnalysisResult } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
 
@@ -16,7 +16,7 @@ export async function analyzeKavachData(
     };
   }
 
-  const prompt = `
+    const prompt = `
     Analyze the following Kavach (TCAS) system data. 
     TRNMSNMA (Train Data): ${JSON.stringify(trainData.slice(0, 20))}
     RFCOMM (Station Data): ${JSON.stringify(stationData.slice(0, 20))}
@@ -26,6 +26,8 @@ export async function analyzeKavachData(
     2. Determine if faults are Hardware (e.g., signal loss, sensor failure) or Software (e.g., version mismatch, logic errors, ack delays).
     3. Analyze specific events: Downgrades, Overrides (ack time), SOS, Emergency Brakes (EB), and Train Length variations.
     4. Provide a summary and specific recommendations for the Medha Kavach team.
+
+    Note: In the data, 'locoId' refers to 'Train No' and 'stationId' refers to 'Station Name'.
 
     Return the result in JSON format.
   `;
@@ -45,7 +47,7 @@ export async function analyzeKavachData(
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  locoId: { type: Type.STRING },
+                  locoId: { type: Type.STRING, description: "The Train No (Loco ID) associated with the fault." },
                   issue: { type: Type.STRING },
                   type: { type: Type.STRING, enum: ["Hardware", "Software"] }
                 }
@@ -56,7 +58,7 @@ export async function analyzeKavachData(
               items: {
                 type: Type.OBJECT,
                 properties: {
-                  stationId: { type: Type.STRING },
+                  stationId: { type: Type.STRING, description: "The Station Name (Station ID) associated with the fault." },
                   issue: { type: Type.STRING },
                   type: { type: Type.STRING, enum: ["Hardware", "Software"] }
                 }

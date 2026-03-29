@@ -115,32 +115,32 @@ export default function App() {
       if (type === 'TRNMSNMA') {
         const validatedData: TrainEvent[] = parsedData.map((d, i) => ({
           id: d.id || `t-${Date.now()}-${i}`,
-          locoId: d.locoId || 'Unknown',
-          timestamp: d.timestamp || new Date().toISOString(),
-          stationId: d.stationId || 'Unknown',
-          speed: Number(d.speed) || 0,
-          tcasStatus: d.tcasStatus || 'Normal',
-          ebApplied: !!d.ebApplied,
-          ebReason: d.ebReason,
-          overrideAck: !!d.overrideAck,
-          length: Number(d.length) || 0,
-          expectedLength: Number(d.expectedLength) || 0,
-          sosGenerated: !!d.sosGenerated,
-          healthScore: Number(d.healthScore) || 100,
-          faultType: d.faultType || 'None'
+          locoId: d.locoId || d['Train No'] || d['Train Number'] || d['Loco ID'] || 'Unknown',
+          timestamp: d.timestamp || d['Time'] || d['Date'] || new Date().toISOString(),
+          stationId: d.stationId || d['Station Name'] || d['Station'] || 'Unknown',
+          speed: Number(d.speed || d['Speed']) || 0,
+          tcasStatus: d.tcasStatus || d['Status'] || 'Normal',
+          ebApplied: !!(d.ebApplied || d['EB Applied']),
+          ebReason: d.ebReason || d['EB Reason'],
+          overrideAck: !!(d.overrideAck || d['Ack']),
+          length: Number(d.length || d['Length']) || 0,
+          expectedLength: Number(d.expectedLength || d['Expected Length']) || 0,
+          sosGenerated: !!(d.sosGenerated || d['SOS']),
+          healthScore: Number(d.healthScore || d['Health']) || 100,
+          faultType: d.faultType || d['Fault'] || 'None'
         }));
         setTrainData(validatedData);
       } else {
         const validatedData: StationEvent[] = parsedData.map((d, i) => ({
           id: d.id || `s-${Date.now()}-${i}`,
-          stationId: d.stationId || 'Unknown',
-          timestamp: d.timestamp || new Date().toISOString(),
-          rfSignalStrength: Number(d.rfSignalStrength) || 0,
-          commStatus: d.commStatus || 'Online',
-          packetLoss: Number(d.packetLoss) || 0,
-          hardwareHealth: Number(d.hardwareHealth) || 100,
-          softwareVersion: d.softwareVersion || 'v1.0',
-          faultType: d.faultType || 'None'
+          stationId: d.stationId || d['Station Name'] || d['Station'] || 'Unknown',
+          timestamp: d.timestamp || d['Time'] || d['Date'] || new Date().toISOString(),
+          rfSignalStrength: Number(d.rfSignalStrength || d['RF Strength'] || d['Signal']) || 0,
+          commStatus: d.commStatus || d['Comm Status'] || 'Online',
+          packetLoss: Number(d.packetLoss || d['Loss']) || 0,
+          hardwareHealth: Number(d.hardwareHealth || d['Hardware Health']) || 100,
+          softwareVersion: d.softwareVersion || d['Version'] || 'v1.0',
+          faultType: d.faultType || d['Fault'] || 'None'
         }));
         setStationData(validatedData);
       }
@@ -288,7 +288,7 @@ export default function App() {
               <div className="flex gap-4">
                 <button 
                   onClick={() => {
-                    const csv = "locoId,timestamp,stationId,speed,tcasStatus,ebApplied,ebReason,overrideAck,length,expectedLength,sosGenerated,healthScore\nLOCO-1001,2026-03-29T06:00:00Z,STN-1,85,Normal,false,,true,620,620,false,95";
+                    const csv = "Train No,Time,Station Name,Speed,Status,EB Applied,EB Reason,Ack,Length,Expected Length,SOS,Health\nLOCO-1001,2026-03-29T06:00:00Z,STN-1,85,Normal,false,,true,620,620,false,95";
                     const blob = new Blob([csv], { type: 'text/csv' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -302,7 +302,7 @@ export default function App() {
                 </button>
                 <button 
                   onClick={() => {
-                    const csv = "stationId,timestamp,rfSignalStrength,commStatus,packetLoss,hardwareHealth,softwareVersion\nSTN-1,2026-03-29T06:00:00Z,75,Online,2,98,v2.4.1";
+                    const csv = "Station Name,Time,RF Strength,Comm Status,Loss,Hardware Health,Version\nSTN-1,2026-03-29T06:00:00Z,75,Online,2,98,v2.4.1";
                     const blob = new Blob([csv], { type: 'text/csv' });
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
@@ -318,11 +318,11 @@ export default function App() {
               <div className="flex gap-4">
                 <GlassCard className="p-4 text-xs text-slate-500 max-w-xs">
                   <p className="font-bold text-slate-300 mb-2">Expected TRNMSNMA Columns:</p>
-                  <p>locoId, speed, tcasStatus, ebApplied, length, expectedLength, healthScore...</p>
+                  <p>Train No, Station Name, Speed, Status, EB Applied, Length, Health...</p>
                 </GlassCard>
                 <GlassCard className="p-4 text-xs text-slate-500 max-w-xs">
                   <p className="font-bold text-slate-300 mb-2">Expected RFCOMM Columns:</p>
-                  <p>stationId, rfSignalStrength, commStatus, packetLoss, hardwareHealth...</p>
+                  <p>Station Name, RF Strength, Comm Status, Loss, Hardware Health...</p>
                 </GlassCard>
               </div>
             </div>
@@ -332,8 +332,8 @@ export default function App() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {/* Stats Grid */}
               <div className="md:col-span-2 grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="Active Locos" value={trainData.length} icon={TrainFront} color="blue" />
-                <StatCard title="Stations" value={stationData.length} icon={Radio} color="purple" />
+                <StatCard title="Active Trains" value={trainData.length} icon={TrainFront} color="blue" />
+                <StatCard title="Active Stations" value={stationData.length} icon={Radio} color="purple" />
                 <StatCard title="EB Applied" value={trainData.filter(t => t.ebApplied).length} icon={ShieldAlert} color="red" />
                 <StatCard title="SOS Alerts" value={trainData.filter(t => t.sosGenerated).length} icon={AlertTriangle} color="orange" />
               </div>
@@ -414,9 +414,9 @@ export default function App() {
                   <table className="w-full text-left">
                     <thead>
                       <tr className="text-[10px] text-slate-500 uppercase border-b border-white/5">
-                        <th className="pb-3 font-bold">Loco ID</th>
+                        <th className="pb-3 font-bold">Train No</th>
                         <th className="pb-3 font-bold">Event</th>
-                        <th className="pb-3 font-bold">Station</th>
+                        <th className="pb-3 font-bold">Station Name</th>
                         <th className="pb-3 font-bold">Speed</th>
                         <th className="pb-3 font-bold">Ack Time</th>
                         <th className="pb-3 font-bold">Status</th>
@@ -475,7 +475,7 @@ export default function App() {
                     value={filters.loco}
                     onChange={(e) => setFilters(prev => ({ ...prev, loco: e.target.value }))}
                   >
-                    <option value="">All Loco IDs</option>
+                    <option value="">All Train Nos</option>
                     {uniqueLocos.map(loco => (
                       <option key={loco} value={loco}>{loco}</option>
                     ))}
@@ -488,7 +488,7 @@ export default function App() {
                     value={filters.station}
                     onChange={(e) => setFilters(prev => ({ ...prev, station: e.target.value }))}
                   >
-                    <option value="">All Stations</option>
+                    <option value="">All Station Names</option>
                     {uniqueStations.map(stn => (
                       <option key={stn} value={stn}>{stn}</option>
                     ))}
@@ -547,7 +547,7 @@ export default function App() {
                     value={filters.station}
                     onChange={(e) => setFilters(prev => ({ ...prev, station: e.target.value }))}
                   >
-                    <option value="">All Stations</option>
+                    <option value="">All Station Names</option>
                     {uniqueStations.map(stn => (
                       <option key={stn} value={stn}>{stn}</option>
                     ))}
@@ -647,7 +647,7 @@ export default function App() {
                     <div className="space-y-3">
                       <h5 className="font-black text-sm uppercase text-blue-600">Train TCAS Analysis</h5>
                       <ul className="text-sm space-y-2 list-disc pl-4">
-                        <li>Loco Health: {trainData.filter(t => t.healthScore > 80).length}/{trainData.length} Optimal</li>
+                        <li>Train Health: {trainData.filter(t => t.healthScore > 80).length}/{trainData.length} Optimal</li>
                         <li>EB Events: {trainData.filter(t => t.ebApplied).length} instances recorded.</li>
                         <li>Length Variation: Max deviation of {Math.max(...trainData.map(t => Math.abs(t.length - t.expectedLength)))}m detected.</li>
                       </ul>
